@@ -1,6 +1,6 @@
 # Master_Degree_courses
 
-**说明：**
+**说明**
 
 本项目是我硕士研究生期间部分课程的作业的合集。
 
@@ -11,28 +11,52 @@
   * __不可用于作业抄袭！请诚信地完成你的学业！无论你喜欢你的课程与否，抄作业都是错误的！__
   * __再次强调！抄作业是错误的！禁止用于抄作业！__
 
-## 内容介绍 ##
+## 内容介绍
 
-文档源码的目录结构如下：
+1. README.md：本文档
+2. finite_element_method：《地球物理中的有限单元法》的磁场延拓程序
+3. Fortran：《Fortran语言编程》的作业和考试答案
+4. inversion：《反演》的结课作业
+5. Petrophysics：《岩石物理学》的结课作业
+6. Geoscience_leading_edge.tex：《地球科学前沿》的结课作业
+7. Numerical_simulation.tex：《数值模拟》的结课作业
 
-    |-- README.md                      # 本文档
-    |-- finite_element_method          # 《地球物理中的有限单元法》的磁场延拓程序
-    |-- Fortran                        # 《Fortran语言编程》的作业和考试答案
-    |-- inversion                      # 《反演》的结课作业
-    |-- Petrophysics                   # 《岩石物理学》的结课作业
-    |-- Geoscience_leading_edge.tex    # 《地球科学前沿》的结课作业
-    |-- Numerical_simulation.tex       # 《数值模拟》的结课作业
+## 如何下载
+
+__再次强调：不可用QQ、MAIL、各种云盘保存和传播本项目中的文件！__
+
+### 方法 1
+
+点击网页上的 "Download ZIP" 键，即可下载。
+
+### 方法 2
+
+直接使用下载链接
+https://codeload.github.com/PeterPanwl/Master_Degree_courses/zip/master
+
+### 方法 3
+
+用 git:
+
+~~~bash
+$ git clone https://github.com/PeterPanwl/Master_Degree_courses.git
+~~~
 
 ## 如何使用tex文件
+
 tex结尾的文件是文本文件，可以直接用编辑器打开，查看其中内容。
-我上交的作业的文档都是用LaTex编译的，如果你想做出PDF，打印出来，你需要编译。
-如果不包含参考文献请，请执行__两次__：
+没错！我用的是[LaTex](https://www.latex-project.org/)！如果你想做出PDF，你需要编译。
+如果不包含参考文献，请执行__两次__：
 
-        xelatex *.tex
+~~~bash
+$ xelatex *.tex
+~~~
 
-否则，请执行：
+如果包含参考文献，请执行：
 
-        xelatex *.tex
-        bibtex *.aux
-        xelatex *.tex
-        xelatex *.tex
+~~~bash
+$ xelatex *.tex
+$ bibtex *.aux
+$ xelatex *.tex
+$ xelatex *.tex
+~~~
