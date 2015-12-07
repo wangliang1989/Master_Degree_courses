@@ -1,0 +1,465 @@
+%-*-coding:UTF-8-*-
+%数值模拟课结课作业
+\documentclass[hyperref,UTF-8]{ctexart}
+\newcommand{\cndash}{\rule{0.2em}{0pt}\rule[0.35em]{1.6em}{0.05em}\rule{0.2em}{0pt}}
+\hypersetup{colorlinks=false,pdfborder=000}
+\usepackage{geometry}
+\renewcommand{\rmdefault}{ptm}
+\geometry{a4paper,centering,scale=0.8}
+\title{\heiti 《数值模拟》课结课作业}
+\author{\kaishu 王亮}
+\date{\today}
+\usepackage{txfonts}
+\usepackage{multirow,makecell}
+\usepackage{fancyvrb}
+\usepackage{pifont}
+\begin{document}
+\zihao{4}
+\maketitle
+\tableofcontents
+\begin{abstract}
+这篇文档是《数值模拟》课的结课作业，包含四个部分：有限单元法、边界单元法、有限差分法和编程练习。
+\end{abstract}
+\section{有限单元法}
+有限单元法（Finite Element Method），冯康首次发现时称为基于变分原理的差分方法，是一种用于求解微分方程组或积分方程组数值解的数值技术。
+这一解法基于完全消除微分方程，即将微分方程转化为代数方程组（稳定情形）;
+或将偏微分方程（组）改写为常微分方程（组）的逼近，这样可以用标准的数值技术（例如欧拉法，龙格－库塔法等）求解。
+
+在解偏微分方程的过程中，主要的难点是如何构造一个方程来逼近原本研究的方程，并且该过程还需要保持数值稳定性。
+目前有许多处理的方法，他们各有利弊。当区域改变时（就像一个边界可变的固体），当需要的精确度在整个区域上变化，
+或者当解缺少光滑性时，有限元方法是在复杂区域（像汽车和输油管道）上解偏微分方程的一个很好的选择。
+例如，在正面碰撞仿真时，有可能在"重要"区域（例如汽车的前部）增加预先设定的精确度并在车辆的末尾减少精度（如此可以减少仿真所需消耗）;
+另一个例子是模拟地球的气候模式，预先设定陆地部分的精确度高于广阔海洋部分的精确度是非常重要的。
+
+地球物理场可用偏微分方程及相应的边界条件（或初始条件）来描述。
+由偏微分方程及边界条件组成相应的编制问题。
+在数学上，边值问题和变分问题等价，所以解出变分问题就等价于解出边值问题。
+而有限单元法就是解决变分问题的一种数值方法。
+有限单元法将区域剖分为许多子单元，在单元内选择近似函数，从而成为节变分问题的有力工具。
+\subsection{基本思路和过程}
+有限单元法的基本思路和过程如下：
+\begin{enumerate}
+\item 给出地球物理边值问题中的偏微分方程和边界条件
+\begin{itemize}
+\item 这一步是难点。尤其是边界条件的给定。
+\end{itemize}
+\item 将地球物理边值问题转化为有限单元法方程
+\begin{itemize}
+\item 实现这种转变的主要数学工具是变分法，用变分法得到的有限单元法方程称为泛函极致问题。
+\end{itemize}
+\item 用有限单元法解泛函极致问题
+\begin{itemize}
+\item 把研究区域划分成有限个小单元，在每个小单元上，把函数简化成线性函数、二次函数或高次函数，即单元函数上的插值。
+用简化后的函数计算每个单元上的泛函。各单元之间，通过单元间的节点上的函数值相互联系起来。
+对各单元的泛函求和获得整个区域上的泛函。
+\end{itemize}
+\end{enumerate}
+\subsection{主要的优缺点}
+有限单元法的主要优点是：适用于物理性质复杂分布的地球物理问题，而且解题过程也比较规范化，即易实现编程。
+
+有限单元法的主要缺点是：有限单元法是区域型方法，必须在全区域进行剖分。
+当区域的形状不规则，不能使用自动剖分的技术时，必须用人工的方法剖分区域。
+\section{边界单元法}
+边界单元法是在有限单元法以后发展起来的一种数值方法。
+在边界单元法以前，就有所谓的边界积分方程法，它通过格林公式，将由偏微分方程表示的边值问题，转变成区域边界上的积分方程，
+然后，将场值集中在边界的若干点上求积分方程。有限单元法发展起来后，发展成为边界单元法。
+\emph{事实上，边界单元法是解边界积分方程的有限单元法。}
+\subsection{基本思路和过程}
+边界单元法的基本思路和过程如下：
+\begin{enumerate}
+\item 给出地球物理边值问题中的偏微分方程和边界条件。
+\begin{itemize}
+\item 这一步是难点。尤其是边界条件的给定。
+\end{itemize}
+\item 将区域型的地球物理边值问题的偏微分方程和边界条件转化为边界型的积分方程。
+\begin{itemize}
+\item 实现这种转变的主要数学工具是格林公式。
+\end{itemize}
+\item 与有限单元法一样，将区域的边界剖分成有限个单元。
+\begin{itemize}
+\item 在每个小单元上，把函数简化成零次、线性、二次或高次函数的插值。
+对各单元进行积分后相加，从而把边界积分方程离散为线性代数方程解。解方程组，得到各节的函数值。
+\end{itemize}
+\end{enumerate}
+\subsection{主要的优缺点}
+边界单元法只在研究区域的边界上剖分单元，从而使求解问题的维数降低：三维问题变
+成二维问题，二维问题变成一维问题。这是边界单元法的优点。
+
+边界单元法也有其自身的缺点：
+
+\begin{enumerate}
+\item 边界单元法形成的代数方程组的系数矩阵，一般是非对称的满秩矩阵，而有限单元法形成的代数方程组的系数矩阵是对称的系数矩阵。
+\item 每一个边界都有一个积分方程。
+\begin{itemize}
+\item 当区域内有许多介质的边界时，要将它们的边界积分方程联立起来求解。
+而有限单元法具有自动满足内部边界条件的功能，无需单独处理，所以在解物性复杂分布的地球物理问题时，有限单元法具有明显的优势。
+\end{itemize}
+\item 在使用格林公式时，需要做基本解的推导。有些非常困难。
+\end{enumerate}
+\section{有限差分法}
+有限差分（finite-difference methods，简称FDM）是一种微分方程数值方法，是通过有限差分來近似导数，然后求微分方程的近似解。
+\subsection{泰勒展开式的推导}
+依照泰勒定理：
+$$f(x_0 + h) = f(x_0) + \frac{f'(x_0)}{1!}h + \frac{f^{(2)}(x_0)}{2!}h^2 + \cdots + \frac{f^{(n)}(x_0)}{n!}h^n + R_n(x)$$
+可以推导函数$f’$近似值：
+$$f(x_0 + h) = f(x_0) + f'(x_0)h + R_1(x)$$
+设定$x_0=a$，可得：
+$$f(a+h) = f(a) + f'(a)h + R_1(x)$$
+除以$h$可得：
+$${f(a+h)\over h} = {f(a)\over h} + f'(a)+{R_1(x)\over h}$$
+求解$f'(a)$：
+$$f'(a) = {f(a+h)-f(a)\over h} - {R_1(x)\over h}$$
+假设$R_1(x)$相当小，因此可以將$f$的一阶导数近似为：
+$$f'(a)\approx {f(a+h)-f(a)\over h}$$
+\subsection{准确度及误差}
+近似解的误差是近似解与解析解间的差值。有限差分的两个误差来源分别是舍入误差和截断误差。
+前者是计算机计算小数时四舍五入造成的误差。后者是计算机内数字位数限制造成的误差。
+
+在运用有限差分法求解一问题（或是说找到问题的近似解）时，第一步需要将问题的定义域离散化。
+一般会将问题的定义域用均匀的网格分割（可参考右图）。因此有限差分法会制造一组导数的离散数值近似值。
+
+一般会关注近似解的局部截尾误差，会用大O符号表示，局部截尾误差是指应用有限差分法一次后产生的误差，
+因此为$f'(x_i) - f'_i$，此时$f'(x_i)$是实际值，而$f'_i$为近似值。
+泰勒多项式的余数项有助于分析局部截尾误差。利用$f(x_0 + h)$泰勒多项式的余数项，也就是
+
+
+$$R_n(x_0 + h) = \frac{f^{(n+1)}(\xi)}{(n+1)!} (h)^{n+1}$$
+ 其中$ x_0 < \xi < x_0 + h$,
+ 
+ 可以找到局部截尾误差的主控项，例如用前项差分法计算一阶导数，已知$f(x_i)=f(x_0+i h)$,
+
+$$ f(x_0 + i h) = f(x_0) + f'(x_0)i h + \frac{f''(\xi)}{2!} (i h)^{2}$$
+利用一些代数的处理，可得
+
+$$ \frac{f(x_0 + i h) - f(x_0)}{i h} = f'(x_0) + \frac{f''(\xi)}{2!} i h$$
+注意到左边的量是有限差分法的近似，右边的量是待求解的量再加上一个余数，因此余数就是局部截尾误差。上述可用下式表示：
+
+$$ \frac{f(x_0 + i h) - f(x_0)}{i h} = f'(x_0) + O(h)$$
+另外，局部截尾误差和步长大小成正比。
+\subsection{范例}
+例如考虑以下的常微分方程
+
+$ u'(x) = 3u(x) + 2$
+利用数值方法中欧拉法求解，利用以下的有限差分式
+
+$$\frac{u(x+h) - u(x)}{h} \approx u'(x)$$
+来求近似导数，并配合一些代数处理（等号两侧同乘以$h$，再加上$u(x)$），可得
+
+$$ u(x+h) = u(x) + h(3u(x)+2)$$
+最后的方程式即为有限差分方程，求解此方程则得到原方程的近似解。
+\section{编程练习}
+\subsection{代码编写}
+为了加深对有限元方法的理解和练习编程技术，利用徐世浙的《地球物理中的有限单元法》书中的108页的例子做一个编程练习。
+按照书中的指导首先编写一个有限元程序。书中已经给出子程序，编写主程序代码如下：
+
+\begin{Verbatim}[numbers=left,commandchars=\\\{\},fontsize=\small,frame=single]
+!gfortran -o new 1.f95 MBW.f90 UK1.f90 UKE1.f90 ub1.f90 ldlt.f90
+IMPLICIT NONE
+ CHARACTER(len=20)::filename1
+INTEGER::ND,NE,ND1,status,i,j,iw,IE,N
+INTEGER,ALLOCATABLE,DIMENSION(:,:)::I3
+INTEGER,ALLOCATABLE,DIMENSION(:)::NB1
+REAL,ALLOCATABLE,DIMENSION(:)::U,U1,P
+REAL,ALLOCATABLE,DIMENSION(:,:)::XY,SK,A
+	j=1
+	WRITE(*,*)'  输入0，进入自动读取文件模式！'
+	READ(*,*)j
+	if(j==0) then
+		NE=16
+		ND=15
+		ND1=12
+		ALLOCATE(I3(1:3,1:NE))
+		filename1='i3'
+		OPEN(UNIT=0,FILE=filename1,STATUS='OLD',ACTION='READ',IOSTAT=status)
+		i=1
+		DO 
+			IF(i>NE)EXIT	
+			READ(0,*)I3(1,i),I3(2,i),I3(3,i)
+			i=i+1
+		END DO
+		CLOSE(UNIT=0)
+       filename1='xy'
+		ALLOCATE(XY(1:2,1:ND))
+		OPEN(UNIT=0,FILE=filename1,STATUS='OLD',ACTION='READ',IOSTAT=status)
+		i=1
+		DO 
+			IF(i>ND)EXIT	
+			READ(0,*)XY(1,i),XY(2,i)
+			i=i+1
+		END DO
+		CLOSE(UNIT=0)
+		filename1='nb1'
+		ALLOCATE(NB1(1:ND1))
+		OPEN(UNIT=0,FILE=filename1,STATUS='OLD',ACTION='READ',IOSTAT=status)
+		i=1
+		DO 
+			IF(i>ND1)EXIT	
+			READ(0,*)NB1(i)
+			i=i+1
+		END DO
+		CLOSE(UNIT=0)
+		filename1='u1'
+	ALLOCATE(U1(1:ND1))
+	OPEN(UNIT=0,FILE=filename1,STATUS='OLD',ACTION='READ',IOSTAT=status)
+	i=1
+	DO 
+		IF(i>ND1)EXIT	
+		READ(0,*)U1(i)
+		i=i+1
+	END DO
+	CLOSE(UNIT=0)
+	else
+	
+WRITE(*,*)'请输入单元总数！'
+READ(*,*)NE
+WRITE(*,*)'请输入节点总数！'
+READ(*,*)ND
+WRITE(*,*)'请输入第一类边界节点数！'
+READ(*,*)ND1
+WRITE(*,*)'请输入单元节点编号文件！'
+READ(*,*)filename1
+ALLOCATE(I3(1:3,1:NE))
+OPEN(UNIT=0,FILE=filename1,STATUS='OLD',ACTION='READ',IOSTAT=status)
+i=1
+DO 
+	IF(i>NE)EXIT	
+	READ(0,*)I3(1,i),I3(2,i),I3(3,i)
+	i=i+1
+END DO
+CLOSE(UNIT=0)
+WRITE(*,*)'请输入节点坐标文件！'
+READ(*,*)filename1
+ALLOCATE(XY(1:2,1:ND))
+OPEN(UNIT=0,FILE=filename1,STATUS='OLD',ACTION='READ',IOSTAT=status)
+i=1
+DO 
+	IF(i>ND)EXIT	
+	READ(0,*)XY(1,i),XY(2,i)
+	i=i+1
+END DO
+CLOSE(UNIT=0)
+WRITE(*,*)'请输入第一类边界节点号文件！'
+READ(*,*)filename1
+ALLOCATE(NB1(1:ND1))
+OPEN(UNIT=0,FILE=filename1,STATUS='OLD',ACTION='READ',IOSTAT=status)
+i=1
+DO 
+	IF(i>ND1)EXIT	
+	READ(0,*)NB1(i)
+	i=i+1
+END DO
+CLOSE(UNIT=0)
+WRITE(*,*)'请输入第一类边界节点场值文件！'
+READ(*,*)filename1
+ALLOCATE(U1(1:ND1))
+OPEN(UNIT=0,FILE=filename1,STATUS='OLD',ACTION='READ',IOSTAT=status)
+i=1
+DO 
+	IF(i>ND1)EXIT	
+	READ(0,*)U1(i)
+	i=i+1
+END DO
+CLOSE(UNIT=0)
+	END IF
+WRITE(*,*)'数据录入完成，请检查数据！'
+WRITE(*,*)'ND=',ND
+WRITE(*,*)'NE=',NE
+WRITE(*,*)'ND1=',ND1
+i=1
+DO
+	IF(i>NE)EXIT	
+	WRITE(*,*)I3(1,i),I3(2,i),I3(3,i)
+	i=i+1
+END DO
+i=1
+DO
+	IF(i>ND)EXIT	
+	WRITE(*,*)XY(1,i),XY(2,i)
+	i=i+1
+END DO
+i=1
+DO 
+	IF(i>ND1)EXIT	
+	WRITE(*,*)NB1(i)
+	i=i+1
+END DO
+i=1
+DO 
+	IF(i>ND1)EXIT	
+	WRITE(*,*)U1(i)
+	i=i+1  
+END DO
+WRITE(*,*)'下面开始计算'
+	CALL MBW(NE,i3,iw)
+WRITE(*,*)'MBW子程序完成，结果iw是',iw
+ALLOCATE(SK(1:ND,1:IW))
+	CALL UK1(ND,NE,IW,I3,XY,SK)
+WRITE(*,*)'UK1子程序完成，结果SK是'
+DO I=1,ND
+	WRITE(*,*)SK(I,1:iw)
+END DO
+ALLOCATE(U(1:ND))
+ CALL UB1(ND1,NB1,U1,ND,IW,SK,U)
+WRITE(*,*)'UB1子程序完成，结果SK是'
+DO I=1,ND
+	WRITE(*,*)SK(I,1:iw)
+END DO
+WRITE(*,*)'结果U是'
+DO I=1,ND
+	WRITE(*,*)U(I)
+END DO
+N=ND
+ALLOCATE(A(1:N,1:IW))
+ALLOCATE(P(1:N))
+A=SK
+P=U
+ CALL LDLT(A,N,IW,P,IE)
+SELECT CASE(IE)
+	CASE(0)
+		WRITE(*,*)'计算成功'
+	CASE(1)
+		WRITE(*,*)'出现奇异矩阵，计算失败'
+	CASE DEFAULT
+		WRITE(*,*)'出现不明错误，计算失败'	
+END SELECT
+WRITE(*,*)'结果是'
+OPEN(UNIT=2,FILE='数值.txt',STATUS='REPLACE',ACTION='write',IOSTAT=status)
+DO i=1,N
+	WRITE(*,*)i,P(i)
+	WRITE(2,*)i,P(i)
+END DO
+END PROGRAM
+\end{Verbatim}
+
+再编写理论计算的计算程序。代码如下：
+
+\begin{Verbatim}[numbers=left,commandchars=\\\{\},fontsize=\small,frame=single]
+!--THIS ARTICLE IS WRITTEN IN ANSI（GB18030）
+!
+!本程序计算磁场的边界值和理论输出值，计算方法是磁法书3-1-78，
+!但输入值应用有限元书的坐标，输出值也和有限元书适合
+!本程序用gfortran编译通过，编译命令为：gfortran 1.f95 
+!注意：本程序为加速运行，按预设文件输入输出，如果输出时会覆盖已存在文件，会询问用户！
+!
+!编写时间：2014年12月27日，作者：王亮
+IMPLICIT NONE
+!数据字典和变量申明
+	INTEGER(KIND=2)::i,j
+	INTEGER(KIND=2)::nvals=0
+	INTEGER(KIND=2)::status
+	REAL(KIND=4),PARAMETER::pi=3.14159265358979!pi是圆周率
+	REAL(KIND=4)::temp1,temp2,u0,ms
+	LOGICAL::done
+	CHARACTER(len=10)::filename
+	REAL(KIND=4),ALLOCATABLE,DIMENSION(:,:)::a
+!程序执行部分
+filename='xy'
+u0=4*pi*1e-6!0.01!4*pi*1e-6
+ms=0.5
+!告知用户程序使用方法
+1000 FORMAT(A)
+1010 FORMAT(A,A)
+1020 FORMAT(F10.10,F10.10)
+WRITE(*,1000)'本程序计算磁场的边界值和理论输出值，计算方法是磁法书3-1-78'
+WRITE(*,1000)'输入值应用有限元书的坐标，输出值也和有限元书适合'
+WRITE(*,1000)'程序按预设文件名输入输出，如果输出时会覆盖已存在文件，会询问用户！'
+WRITE(*,1000)'输入文件名必须为‘xy’！'
+
+OPEN(UNIT=1,FILE=filename,STATUS='OLD',ACTION='READ',IOSTAT=status)
+!判断数据文件是否打开成功
+IF(status==0) THEN !如果打开成功，数据录入给数组a
+	!检索文件中数据，将文件中的实数个数赋值给nvals
+	DO
+		READ(1,*,IOSTAT=status) temp1,temp2
+		IF(status/=0) EXIT
+		nvals=nvals+1
+	END DO
+	!回到文件的开头
+	REWIND(UNIT=1)
+	!给可分配数组a确定其大小
+	ALLOCATE(a(1:nvals,1:2),STAT=status)
+	IF(status/=0)THEN !如果出现数据过大等情况，告知用户内存不够而分配不成功，程序终止
+		WRITE(*,*)'内存不足，程序终止'
+		STOP
+	END IF
+	!如果文件能够成功打开且能将数据正常赋值给可分配数组，向用户回显原始数据
+	WRITE(*,*)'文件打开成功，您输入的原始数据是'
+	DO i=1,nvals
+		READ(1,*) a(i,1),a(i,2)
+		WRITE(*,*)a(i,1),a(i,2)
+	END DO
+ELSE!如果文件打开不成功，告知用户,并终止程序
+	WRITE(*,*)'文件打开失败，程序终止！'
+	STOP
+END IF
+!坐标转换
+	CLOSE(UNIT=1)
+OPEN(UNIT=1,FILE='result.txt',STATUS='REPLACE',ACTION='write',IOSTAT=status)
+OPEN(UNIT=2,FILE='u1',STATUS='REPLACE',ACTION='write',IOSTAT=status)
+DO i=1,nvals!有限元书的原点坐标应该转为(-2,1)
+	a(i,1)=a(i,1)-2.
+	a(i,2)=a(i,2)+1.
+	WRITE(1,*)i,(u0*ms*((a(i,2)**2)-(a(i,1)**2)))/(2*pi*((a(i,2)**2+a(i,1)**2)**2)) 
+	IF((i/=5).AND.(i/=8).AND.(i/=11)) THEN
+		WRITE(2,*)(u0*ms*((a(i,2)**2)-(a(i,1)**2)))/(2*pi*((a(i,2)**2+a(i,1)**2)**2)) 
+	END IF
+END DO
+END
+\end{Verbatim}
+\subsection{计算结果}
+场源附近的场值变化率大，为了保证精度，计算点的y坐标都较《地球物理中的有限单元法》书上的增加100。
+理论计算程序先算出各个点的场值，然后把计算结果中的除5、8、11点以外各点的数据用有限元程序计算5、8、11点的场值并与理论值相比较。
+计算出来的理论值是：
+
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\small]
+      1   9.79143641E-11
+      2   9.60060850E-11
+      3   9.41530395E-11
+      4   9.70379124E-11
+      5   9.57135690E-11
+      6   9.42329409E-11
+      7   9.61168783E-11
+      8   9.51814391E-11
+      9   9.42595932E-11
+     10   9.66567451E-11
+     11   9.55265797E-11
+     12   9.42329409E-11
+     13   9.69531885E-11
+     14   9.75281939E-11
+     15   9.41530395E-11
+\end{Verbatim}
+
+由有限元程序算出来的是：
+
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\small]
+      1   9.79143641E-11
+      2   9.60060850E-11
+      3   9.41530395E-11
+      4   9.70379124E-11
+      5   9.57136176E-11
+      6   9.42329409E-11
+      7   9.61168783E-11
+      8   9.51821469E-11
+      9   9.42596001E-11
+    10   9.66567382E-11
+    11   9.55299034E-11
+    12   9.42329409E-11
+    13   9.69531885E-11
+    14   9.75281939E-11
+    15   9.41530395E-11
+\end{Verbatim}
+
+其中5、8、11号点是数值计算的结果，将其和理论计算对比如下：
+
+\begin{center}
+\renewcommand\arraystretch{2}
+\begin{tabular}{c|c|c}\hline
+点号&有限元程序&理论计算\\\hline
+5号点& 9.57136176E-11& 9.57135690E-11\\\hline
+8号点&9.51821469E-11&9.51814391E-11\\\hline
+11号点&9.55299034E-11& 9.55265797E-11\\\hline
+\end{tabular}
+\end{center}
+
+可看出误差较小，说明编程是正确的。
+\end{document}
