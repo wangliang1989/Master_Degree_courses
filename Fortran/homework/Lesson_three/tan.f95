@@ -1,0 +1,5 @@
+REAL FUNCTION mytan(x,y)
+IMPLICIT NONE
+REAL,INTENT(IN)::x,y
+mytan=TAN(x**2+y**2)
+END FUNCTION

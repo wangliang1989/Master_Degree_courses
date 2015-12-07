@@ -1,0 +1,300 @@
+%-*-coding:UTF-8-*-
+%Fortran课考试答题
+\documentclass[hyperref,UTF-8]{ctexart}
+\newcommand{\cndash}{\rule{0.2em}{0pt}\rule[0.35em]{1.6em}{0.05em}\rule{0.2em}{0pt}}
+\hypersetup{colorlinks=false,pdfborder=000}
+\usepackage{geometry}
+\renewcommand{\rmdefault}{ptm}
+\geometry{a4paper,centering,scale=0.8}
+\title{\heiti 《Fortran语言》课考试答题}
+\author{\kaishu 王亮}
+\date{\today}
+\usepackage{txfonts}
+\usepackage{multirow,makecell}
+\usepackage{fancyvrb}
+\usepackage{pifont}
+\begin{document}
+\zihao{4}
+\maketitle
+\tableofcontents
+\begin{abstract}
+这篇文档是《Fortran语言》考试的答卷内容。
+\end{abstract}
+\section{问题分析}
+设有三个连续函数：
+$$f(x)=sin3x+cosx$$
+$$g(x)=5x^3+2x-10$$
+$$h(x)=\vadjust{\vspace{10pt}}\frac{1}{1+x^2}$$
+设计一个函数子程序，用辛普森法求三个函数的定积分：
+$$\int_0^\frac{\pi}{6}f(x)dx$$
+$$\int_0^{10}g(x)dx$$
+$$\int_0^1h(x)\vadjust{\vspace{10pt}}dx$$
+题目中要求使用辛普森法。辛普森法一共有三种：
+\begin{enumerate}
+\item 一般的辛普森法，即二阶的牛顿\cndash 克斯特公式
+\begin{itemize}
+\item 三种方法中最基本的，计算最快，但精度最低。
+\end{itemize}
+\item 定步长辛普森法或称为复合辛普森法
+\begin{itemize}
+\item 此方法是将积分区间分割为多个子区间，在每个子区间使用一般的辛普森法，计算更慢，但精度可通过增加划分区间来提高。
+\end{itemize}
+\item 变步长辛普森法或称为自适应辛普森法
+\begin{itemize}
+\item 此方法类似定步长辛普森法，只是通过程序设计，使程序运行后会根据要求的精度不断调整分割子区间个数使精度符合要求。
+\end{itemize}
+\end{enumerate}
+题目没有说明使用哪种辛普森法编程。因为第一种精度低，第三种只是增加了调整划分区间个数的功能，精度并没有实际提高，而编程难度大很多，故选择第二种方法。
+\section{数学公式}
+取$h=\frac{b-a}{n}$, $x_i=a+ih$ $(i=0,1,\cdots,n)$, $x_{i-\frac{1}{2}}=\frac{x_{i-1}+x_i}{2}=x_i-\frac{h}{2}$ $(i=1,2,\cdots,n)$，定步长辛普森公式是
+$$I(f)=\frac{h}{6}[f(a)+f(b)+2\sum_{i=1}^{n-1}f(x_i)+4\sum_{i=1}^{n}f(x_{i-\frac{1}{2}})]$$
+\section{程序设计}
+根据用户输入子区间的分隔数目$n$，程序计算出步长$h$。计算$f(x_i)$和$f(x_{i-\frac{1}{2}})$ $(i=1,2,\cdots,n)$，并将它们分别存放于两个数组$a$和$b$中。
+计算端点函数值之和，并储存在变量$sum$中：$sum=f(a)+f(b)$，再将变量$n$、$h$、$sum$和数组$a$和$b$传递给函数子过程，用辛普森公式计算。
+\section{源代码}
+源代码分别存于两个文件中。主程序代码存于1.f95文件中，函数子程序代码存于sim.f95文件中。
+
+1.f95的源代码是：
+\begin{Verbatim}[numbers=left,commandchars=\\\{\},fontsize=\small,frame=single]
+!--THIS ARTICLE IS WRITTEN IN ANSI（GB18030）
+!
+!本程序用辛普森法计算三个函数的积分。
+!三个函数分别是：f(x)=sin3x+cosx, g(x)=5x^3+2x-10, h(x)=1/(1+x^2)
+!积分区间分别是：(0，pi/6)，(0,10), (0,1)
+!按要求，本程序将辛普森算法的实现写入子函数中
+!本程序用gfortran编译通过，编译命令为：gfortran 1.f95 sim.f95
+!注意：sim.f95存放子函数，为编译所必须！
+!
+!编写时间：2014年12月23日，作者：王亮
+IMPLICIT NONE
+!数据字典和变量申明
+INTEGER(KIND=8)::status,n,i!status存储IOSTAT字句返回的值，n是分区的总数，i是循环计数器
+	CHARACTER(LEN=30)::j1
+REAL(KIND=8),PARAMETER::pi=3.14159265358979!pi是圆周率
+REAL(KIND=8)::h,sum,result!h是步长，sum是端点函数值之和，result是最终的计算结果
+REAL(KIND=8),ALLOCATABLE,DIMENSION(:)::a,b!a存放公式中各i项，b存放公式中各i-1/2项
+REAL(KIND=8)::sim!sim是辛普森法对应的函数
+!程序执行部分
+!告知用户程序使用方法
+1000 FORMAT(A)
+1010 FORMAT(A,A)
+WRITE(*,1000)'======================================================'
+WRITE(*,1000)'程序功能：本程序用辛普森法计算三个函数的积分'
+WRITE(*,1000)'三个被积函数分别是：f(x)=sin3x+cosx, g(x)=5x^3+2x-10, h(x)=1/(1+x^2)'
+WRITE(*,1000)'积分区间分别是：(0，pi/6)，(0,10), (0,1)'
+WRITE(*,1000)'======================================================'
+!f(x)开始
+!获取步长
+WRITE(*,1000)'请输入f(x)分割为多少区间'
+READ(*,*,IOSTAT=status)n
+IF(.NOT.(status==0))THEN
+	WRITE(*,*)'输入值非整数，程序结束。'
+	STOP
+END IF
+IF(.NOT.((n>0)))THEN
+	WRITE(*,*)'输入值小于1，子区间至少要有一个！程序结束'
+	STOP
+END IF
+!数据读入完成，向用户回显输入值
+WRITE(j1,*)n
+WRITE(*,1010)'您输入的分区个数分别是',TRIM(ADJUSTL(j1))
+!计算开始
+h=(pi/6.)/REAL(n)
+ALLOCATE(a(1:n-1))
+ALLOCATE(b(1:n))
+DO i=1,n-1
+a(i)=(SIN(3.*(h*i)))+COS((h*i))
+END DO
+DO i=1,n
+b(i)=(SIN(3.*((h*i)-(h/2.))))+COS(((h*i)-(h/2.)))
+END DO
+sum=(SIN(0.)+COS(0.))+(SIN(pi/6.)+COS(pi/6.))
+result=sim(a,b,sum,h,n)
+WRITE(j1,*)result
+WRITE(*,1010)'结果是',TRIM(ADJUSTL(j1))
+DEALLOCATE(a)
+DEALLOCATE(b)
+!f(x)计算结束
+!g(x)开始
+!获取步长
+WRITE(*,1000)'请输入g(x)分割为多少区间'
+READ(*,*,IOSTAT=status)n
+IF(.NOT.(status==0))THEN
+	WRITE(*,*)'输入值非整数，程序结束。'
+	STOP
+END IF
+IF(.NOT.((n>0)))THEN
+	WRITE(*,*)'输入值小于1，子区间至少要有一个！程序结束'
+	STOP
+END IF
+!数据读入完成，向用户回显输入值
+WRITE(j1,*)n
+WRITE(*,1010)'您输入的分区个数分别是',TRIM(ADJUSTL(j1))
+!计算开始
+h=10./REAL(n)
+ALLOCATE(a(1:n-1))
+ALLOCATE(b(1:n))
+DO i=1,n-1
+a(i)=5.*((h*i)**3)+2.*(h*i)-10.
+END DO
+DO i=1,n
+b(i)=5.*(((h*i)-(h/2.))**3)+2.*((h*i)-(h/2.))-10.
+END DO
+sum=5.*(0.**3)+2.*0.-10.+5.*(10.**3)+2.*10.-10.
+result=sim(a,b,sum,h,n)
+WRITE(j1,*)result
+WRITE(*,1010)'结果是',TRIM(ADJUSTL(j1))
+DEALLOCATE(a)
+DEALLOCATE(b)
+!h(x)计算结束
+!h(x)开始
+!获取步长
+WRITE(*,1000)'请输入h(x)分割为多少区间'
+READ(*,*,IOSTAT=status)n
+IF(.NOT.(status==0))THEN
+	WRITE(*,*)'输入值非整数，程序结束。'
+	STOP
+END IF
+IF(.NOT.((n>0)))THEN
+	WRITE(*,*)'输入值小于1，子区间至少要有一个！程序结束'
+	STOP
+END IF
+!数据读入完成，向用户回显输入值
+WRITE(j1,*)n
+WRITE(*,1010)'您输入的分区个数分别是',TRIM(ADJUSTL(j1))
+!计算开始h(x)=1/(1+x^2)
+h=1./REAL(n)
+ALLOCATE(a(1:n-1))
+ALLOCATE(b(1:n))
+DO i=1,n-1
+a(i)=1./(1.+(h*i)**2)
+END DO
+DO i=1,n
+b(i)=1./(1.+((h*i)-(h/2.))**2)
+END DO
+sum=1./(1.+0.**2)+1./(1.+1.**2)
+result=sim(a,b,sum,h,n)
+WRITE(j1,*)result
+WRITE(*,1010)'结果是',TRIM(ADJUSTL(j1))
+DEALLOCATE(a)
+DEALLOCATE(b)
+!g(x)计算结束
+END
+\end{Verbatim}
+
+函数子程序sim.f95的源代码是：
+\begin{Verbatim}[numbers=left,commandchars=\\\{\},fontsize=\small,frame=single]
+!--THIS ARTICLE IS WRITTEN IN ANSI（GB18030）
+REAL FUNCTION sim(a,b,sum,h,n)
+IMPLICIT NONE
+INTEGER(KIND=8)::i!i是循环计数器
+REAL(KIND=8)::temp
+!temp用来临时存放复合辛普森公式中各项求和值，最终将值传给输出结果
+!INTENT(IN)属性的变量和主程序中意义相同
+INTEGER(KIND=8),INTENT(IN)::n
+REAL(KIND=8),INTENT(IN)::sum,h
+REAL(KIND=8),INTENT(IN),DIMENSION(1:n)::b
+REAL(KIND=8),INTENT(IN),DIMENSION(1:n-1)::a
+temp=sum
+DO i=1,n-1
+temp=temp+2.*a(i)
+END DO
+DO i=1,n
+temp=temp+4.*b(i)
+END DO
+sim=(temp*h)/6.
+end function sim
+\end{Verbatim}
+\section{运行结果和分析}
+程序运行结果：
+\begin{Verbatim}[fontsize=\small,frame=single]
+C:\Users\wangliang\Documents\Fortran\考试>gfortran 1.f95 sim.f95
+
+C:\Users\wangliang\Documents\Fortran\考试>a
+========================================================
+程序功能：本程序用辛普森法计算三个函数的积分
+三个被积函数分别是：f(x)=sin3x+cosx, g(x)=5x^3+2x-10, h(x)=1/(1+x^2)
+积分区间分别是：(0，pi/6)，(0,10), (0,1)
+========================================================
+请输入f(x)分割为多少区间
+100000
+您输入的分区个数分别是100000
+结果是0.83333289623260498
+请输入g(x)分割为多少区间
+10000
+您输入的分区个数分别是10000
+结果是12500.000000000000
+请输入h(x)分割为多少区间
+1000
+您输入的分区个数分别是1000
+结果是0.78539818525314331
+\end{Verbatim}
+为了能够进行对比，用octave（和Matlab类似）进行计算（分区间相同）。计算使用的代码分别存于两个m文件中。
+one.m文件存放输入三个函数的命令。
+S\_quad.m文件存放定步长辛普森计算程序。
+
+one.m的代码是：
+\begin{Verbatim}[numbers=left,commandchars=\\\{\},fontsize=\small,frame=single]
+x=0:(pi/600000):(pi/6);y=sin(3*x)+cos(x);
+I=S_quad(x,y)
+x=0:0.001:10;y=5*x.^3+2*x-10;
+I=S_quad(x,y)
+x=0:0.001:1;y=1./(1.+x.**2);
+I=S_quad(x,y)
+\end{Verbatim}
+
+S\_quad.m的代码是：
+\begin{Verbatim}[numbers=left,commandchars=\\\{\},fontsize=\small,frame=single]
+function I=S_quad(x,y)
+n=length(x);m=length(y);
+if n~=m
+error('The lengths of X and Y must be equal');
+return;
+end
+N=(n-1)/2;h=(x(n)-x(1))/N;a=zeros(1,n);
+for k=1:N
+a(2*k-1)=a(2*k-1)+1;a(2*k)=a(2*k)+4;
+a(2*k+1)=a(2*k+1)+1;
+end
+I=h/6*sum(a.*y);
+\end{Verbatim}
+
+用Ovatve运行，结果：
+\begin{Verbatim}[fontsize=\small,frame=single]
+octave:9> run one.m
+I =  0.833333333333333
+I =  12500
+I =  0.785398163397448
+\end{Verbatim}
+
+题目给出的三个函数的原函数均可写出解析式，可以计算解析解：
+$$\int_0^\frac{\pi}{6}f(x)dx=(-\frac{1}{3}cos3x+sinx)|_0^\frac{\pi}{6}=0.8\dot3$$
+$$\int_0^{10}g(x)dx=(\frac{5}{4}x^4+x^2-10x)|_0^{10}=12500$$
+$$\int_0^1h(x)\vadjust{\vspace{10pt}}dx=arctan(x)|_0^1=\piup/4\approx0.78539815\cdots$$
+下面，将编程计算、octave数值计算和推导计算的结果\vadjust{\vspace{10pt}}列表如下：
+\begin{center}
+\renewcommand\arraystretch{2}
+\begin{tabular}{c|c|c|c}\hline
+&Fortran&octave&推导计算\\\hline
+$\int_0^\frac{\pi}{6}f(x)dx$&0.83333289623260498&0.833333333333333&$0.8\dot3$\\\hline
+$\int_0^{10}g(x)dx$&12500.000000000000&12500&12500\\\hline
+$\int_0^1h(x)dx$&0.78539818525314331&0.785398163397448&$\piup/4\approx0.78539815$\\\hline
+\end{tabular}
+\end{center}
+由上表，可以确信编程是正确的。另外对比发现，使用专门的数值计算软件octave计算的精度要好得多。
+
+编写的octave的代码行数较Fortran的要少得多，节省程序员的时间。
+但在运行时发现，在分隔区间较多时，octave运算出结果需要等待，而Fortran程序在运行时明显更快，节约用户时间。
+这也是传统的编译语言（如Fortran、C等）和脚本语言（如octave、Python等）间常见的区别：
+\begin{enumerate}
+\item 编译语言做出的程序较脚本语言运算快。
+\begin{itemize}
+\item 这是因为编译语言在编译后，代码转化为可执行程序中的机器码，离硬件更近，运算自然更快。
+\end{itemize}
+\item 脚本语言编写时间较短，代码短，计算结果更好。
+\begin{itemize}
+\item 脚本语言如Ocatve、Pyhton等是更为现代的语言，距离硬件更远，是更高级的高级语言，在设计时，就考虑了减轻程序员的负担。
+\end{itemize}
+\end{enumerate}
+\emph{Fortran编程的源代码、octave脚本和运行结果截图放在同目录下。}
+\end{document}
