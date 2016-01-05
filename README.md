@@ -2,7 +2,16 @@
 
 **说明**
 
-本项目是我硕士研究生期间部分课程的作业的合集。
+本项目是我硕士研究生期间部分课程的作业的合集。其中肯定有不完善之处，甚至错误，欢迎指出。
+
+__QQ：100727461__
+
+__MAIL：wangliang0222@foxmail.com__
+
+我之所以把这个项目放到github上来主要有两个原因：
+
+1. 中科大的LUG推荐大家把课程实验、作业等用gitlab保管，而我更喜欢github。
+2. 让更多人感受一下开源社区文化的感召力，毕竟git已经很流行了。
 
 要使用本项目，请遵守：
 
@@ -11,15 +20,19 @@
   * __不可用于作业抄袭！请诚信地完成你的学业！无论你喜欢你的课程与否，抄作业都是错误的！__
   * __再次强调！抄作业是错误的！禁止用于抄作业！__
 
-## 内容介绍
+__我无力约束你遵守以上条款，亦无力对你使用本项目的内容所造成的不良后果负责。__
 
-1. README.md：本文档
-2. finite_element_method：《地球物理中的有限单元法》的磁场延拓程序
-3. Fortran：《Fortran语言编程》的作业和考试答案
-4. inversion：《反演》的结课作业
-5. Petrophysics：《岩石物理学》的结课作业
-6. Geoscience_leading_edge.tex：《地球科学前沿》的结课作业
-7. Numerical_simulation.tex：《数值模拟》的结课作业
+## 目录
+
+* [README.md](README.md)
+* [《地球物理中的有限单元法》的磁场延拓程序](finite_element_method)
+* 《Fortran语言编程》
+    * [作业](/Fortran/homework/doc/Fortran_homework.tex)
+    * [考试答案](/Fortran/exam/Fortran_exam.tex)
+* [《反演》的结课作业](inversion/inversion.tex)
+* [《岩石物理学》的结课作业](Petrophysics/Petrophysics.tex)
+* [《地球科学前沿》的结课作业](Geoscience_leading_edge.tex)
+* [《数值模拟》的结课作业](Numerical_simulation.tex)
 
 ## 如何下载
 
