@@ -11,7 +11,7 @@
 IMPLICIT NONE
 !数据字典和变量申明
 INTEGER(KIND=8)::status,n,i!status存储IOSTAT字句返回的值，n是分区的总数，i是循环计数器
-	CHARACTER(LEN=30)::j1
+CHARACTER(LEN=30)::j1
 REAL(KIND=8),PARAMETER::pi=3.14159265358979!pi是圆周率
 REAL(KIND=8)::h,sum,result!h是步长，sum是端点函数值之和，result是最终的计算结果
 REAL(KIND=8),ALLOCATABLE,DIMENSION(:)::a,b!a存放公式中各i项，b存放公式中各i-1/2项
