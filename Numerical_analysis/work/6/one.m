@@ -1,0 +1,10 @@
+%สตั้6.1.1
+odefun=inline('x+y','x','y');
+[x,y]=ode45(odefun,[1:3],1);
+[x,y]
+odefun=inline('x+y','x','y');
+[x,y]=ode23(odefun,[1:3],1);
+[x,y]
+odefun=inline('x+y','x','y');
+[x,y]=ode113(odefun,[1:3],1);
+[x,y]
