@@ -32,6 +32,7 @@ __我无力约束你遵守以上条款，亦无力对你使用本项目的内容
 * [《反演》的结课作业](inversion/inversion.tex)
 * [《岩石物理学》的结课作业](Petrophysics/Petrophysics.tex)
 * [《地球科学前沿》的结课作业](Geoscience_leading_edge.tex)
+* [《数值分析》的课堂试验和作业](/Numerical_analysis)
 * [《数值模拟》的结课作业](Numerical_simulation.tex)
 
 ## 如何下载
