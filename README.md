@@ -15,7 +15,7 @@ __MAIL：wangliang0222@foxmail.com__
 
 要使用本项目，请遵守：
 
-  * 不可用QQ、MAIL、各种云盘保存和传播本项目中的文件，只能传播本项目的链接[Master_Degree_courses](https://github.com/PeterPanwl/Master_Degree_courses)。
+  * 不可用QQ、MAIL、各种云盘保存和传播本项目中的文件，只能传播本项目的链接[Master_Degree_courses](https://github.com/wangliang1989/Master_Degree_courses)。
   * 须遵守知识共享 署名-非商业性使用-相同方式共享 4.0 国际 许可协议。要查看该许可协议，可访问 http://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh 。除非，你是__借鉴__本项目的内容来完成作业。
 
 另外，《数值分析》的内容当时我没有及时整理，所以比较乱，内容我基本也忘记了。如果你能帮我整理好，我可以请你吃一顿便饭。
